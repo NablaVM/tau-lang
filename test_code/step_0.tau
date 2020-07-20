@@ -1,0 +1,24 @@
+// Functions with return types that are just literal things
+// 
+
+func nothing() 
+{
+}
+
+func some_char() -> char 
+{
+
+    return '4'; 
+}
+
+func some_func() -> double 
+{
+
+    return 0.0;
+}
+
+func main() -> int 
+{
+
+    return 0;
+}

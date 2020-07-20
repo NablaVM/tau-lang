@@ -1,0 +1,13 @@
+
+func nothing(x : int, y : int) {
+
+}
+
+func main() -> int {
+
+    nothing(y: 3, x: 4);
+
+    nothing(4, 3);
+
+    return 0;
+}

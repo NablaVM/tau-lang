@@ -1,0 +1,22 @@
+//  Parameters added and multiple returns
+//
+//
+
+func nothing(x : int, y : int) {
+
+}
+
+func some_char(c : char ) -> char, int {
+
+    return '5', 4;
+}
+
+func some_func(d : double) -> double {
+
+    return 0.0;
+}
+
+func main() -> int {
+
+    return 0;
+}

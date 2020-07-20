@@ -1,0 +1,36 @@
+
+struct myStruct 
+{
+    c : int;
+    b : int;
+};
+
+func new_struct() -> myStruct {
+
+    x : myStruct = 
+    { 
+        c: 0, 
+        b: 0 
+    };
+
+    y : myStruct = 
+    {
+        0,
+        0
+    };
+
+    return x;
+}
+
+func (ms : myStruct *) some_func() {
+
+}
+
+func main() -> int {
+
+    myStruct x;
+
+    x.some_func();
+
+    return 0;
+}
