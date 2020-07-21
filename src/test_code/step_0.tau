@@ -7,7 +7,6 @@ func nothing()
 
 func some_char() -> char 
 {
-
     return '4'; 
 }
 

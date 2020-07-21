@@ -3,6 +3,8 @@
 
 #include "Token.hpp"
 
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -25,6 +27,7 @@ namespace TAU
         std::string origin_file;
         std::vector<Token::Type> t_stream;
         std::map<std::string, Token::Type> keywords;
+        std::set<char> break_points;
 
         // Tokenize the file
         void tokenize(std::vector<std::string> file_contents);
