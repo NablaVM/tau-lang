@@ -25,7 +25,7 @@ namespace TAU
 
     private:
         std::string origin_file;
-        std::vector<Token::Type> t_stream;
+        std::vector<Token> t_stream;
         std::map<std::string, Token::Type> keywords;
         std::set<char> break_points;
 

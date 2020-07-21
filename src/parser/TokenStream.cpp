@@ -128,18 +128,14 @@ namespace TAU
         std::cout << "TokenStream <file> : " << origin_file << std::endl;
         std::cout << "TokenStream <todo> : Tokenize the file here - This is the next thing to do" << std::endl;
     
-        for(unsigned line_number = 0; line_number < file_contents.size(); line_number++)
+        for(unsigned row = 0; row < file_contents.size(); row++)
         {
-            // string the first char we have
-            // Check if in map (would match + - / etc)
-            // If not in the map
-            //    if 'f' -> scan for "func"
-            //    if 'a' -> scan for "asm"
-            //    if '
-
-            for(unsigned column_number = 0; column_number < file_contents[line_number].size(); column_number++)
+            std::string &line = file_contents[row];
+            std::string token_string;
+            // func function(fasm : int) -> int
+            for(unsigned col = 0; col < line.size();)
             {
-
+                
             }
         }
     
