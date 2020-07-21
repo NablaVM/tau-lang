@@ -1,0 +1,39 @@
+language: cpp
+dist: xenial
+
+# More builds expected in the future
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+      env:
+        - MATRIX_EVAL="CXX_COMPILER=g++-9"
+    
+before_install:
+
+  - PARENTDIR=$(pwd)
+
+  - eval "${MATRIX_EVAL}"
+  
+  - mkdir $PARENTDIR/build-release
+
+  - bash install_cpputest.sh
+
+  - export CC=gcc-9
+  - export CXX=g++-9
+
+  - bash install_libnabla.sh
+
+  - cd $PARENTDIR
+
+install:
+
+script:
+  - cd $PARENTDIR/build-release
+  - cmake $PARENTDIR/src -DCMAKE_BUILD_TYPE=Release
+  - make -j9
