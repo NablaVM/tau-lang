@@ -17,18 +17,14 @@ matrix:
 before_install:
 
   - PARENTDIR=$(pwd)
-
   - eval "${MATRIX_EVAL}"
-  
   - mkdir $PARENTDIR/build-release
-
   - bash install_cpputest.sh
 
   - export CC=gcc-9
   - export CXX=g++-9
 
   - bash install_libnabla.sh
-
   - cd $PARENTDIR
 
 install:
