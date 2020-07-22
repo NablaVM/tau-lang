@@ -28,7 +28,7 @@ namespace TAU
             INT_L, DOUBLE_L, CHAR_L, STRING_L,
             
             // Abstract Tokens
-            VALUE, IDENTIFIER,
+            IDENTIFIER,
 
             // Symbol tokens
             SEMI, COMMA, COLON, DOT,
@@ -65,7 +65,6 @@ namespace TAU
             case Type::DOUBLE_L   : return "DOUBLE_L";
             case Type::CHAR_L     : return "CHAR_L";
             case Type::STRING_L   : return "STRING_L";
-            case Type::VALUE      : return "VALUE";
             case Type::IDENTIFIER : return "IDENTIFIER";
             case Type::SEMI       : return "SEMI";
             case Type::COMMA      : return "COMMA";

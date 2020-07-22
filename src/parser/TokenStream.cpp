@@ -12,8 +12,8 @@ namespace TAU
         std::regex reg_string_literal("\"([^\"\\\\]|\\\\.)*\"");
         std::regex reg_double_literal("^[0-9]+.[0-9]+$");
         std::regex reg_integer_literal("(^[0-9]+$)|(^\\-[0-9]+$)");
-        std::regex reg_char_literal("(^\\'.\\')");
-        std::regex reg_identifier("(^[a-zA-Z_]+[0-9]?)");
+        std::regex reg_char_literal(R"('\\*.{1}')");
+        std::regex reg_identifier("(^[a-zA-Z_]+[0-9]*)");
     }
 
     // -----------------------------------------
@@ -102,10 +102,6 @@ namespace TAU
             exit(EXIT_FAILURE);
         }
 
-        //  Set the file name that the stream was generated from
-        //
-        origin_file = file;
-
         //  Create a vector to store the lines of the file
         //
         std::vector<std::string> source_file;
@@ -115,7 +111,7 @@ namespace TAU
         std::string line;
         while(std::getline(in, line))
         {
-            std::cout << "TokenStream <line> : " << line << std::endl;
+          //  std::cout << "TokenStream <line> : " << line << std::endl;
 
             source_file.push_back(line);
         }
@@ -124,35 +120,38 @@ namespace TAU
         //
         in.close();
 
+        createStreamFromVector(file, source_file);
+    }
+
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+
+    void TokenStream::createStreamFromVector(std::string source_name, std::vector<std::string> & source_vector)
+    {
+        //  Set the file name that the stream was generated from
+        //
+        origin_source_name = source_name;
+
         //  Tokenize the file
         //
-        tokenize(source_file);
+        tokenize(source_vector);
 
-        std::cout << "TOKEN STREAM OUTPUT : " << std::endl;
-
-        for(auto t : t_stream)
-        {
-            std::cout << t.toString() << " ";
-        } 
-        std::cout << std::endl;
     }
 
     // -----------------------------------------
     //
     // -----------------------------------------
     
-    void TokenStream::tokenize(std::vector<std::string> file_contents)
+    void TokenStream::tokenize(std::vector<std::string> & file_contents)
     {
-        std::cout << "TokenStream <file> : " << origin_file << std::endl;
-        std::cout << "TokenStream <todo> : Tokenize the file here - This is the next thing to do" << std::endl;
-    
-
         std::string token_string;
         for(unsigned row = 0; row < file_contents.size(); row++)
         {
             std::string &line = file_contents[row];
 
             bool inside_string_literal = false;
+            bool inside_char_literal   = false;
             for(unsigned col = 0; col < line.size(); col++)
             {
                 // Skip leading white spaces on the line, This steps over by one so we dec at the end
@@ -161,7 +160,35 @@ namespace TAU
 
                 //  If a '"' is found without a '\' before it we need to toggle us being in a string literal
                 //
-                if(line[col] == '"' && (col > 0 && line[col-1] != '\\')){ inside_string_literal = (inside_string_literal) ? false : true; }
+                if(line[col] == '"')
+                {
+                    if(col == 0) { inside_string_literal = true; }
+                    else if (col > 0 && line[col-1] != '\\') { inside_string_literal = false; }
+                }
+                
+                //  If we're in a string literal add everything to it and ignore other operations
+                //
+                if (inside_string_literal)
+                {
+                    token_string += line[col];
+                    continue;
+                }
+
+                //  Same thing for char literals as string literals
+                //
+                if(line[col] == '\'')
+                {
+                    if(col == 0) { inside_char_literal = true; }
+                    else if (col > 0 && line[col-1] != '\\') { inside_char_literal = false; }
+                }
+
+                // Add whatever to the char literal - Validitiy of said literal will be checked after its built
+                // 
+                if(inside_char_literal)
+                {
+                    token_string += line[col];
+                    continue;
+                }
 
                 //  Skip spaces that aren't in a string
                 //
@@ -177,20 +204,24 @@ namespace TAU
                 //
                 std::string current_item; current_item += line[col];
 
-                //  Edge case to check if a double is being lexed
+                //  Edge case to handle the '.' Its potentially identifies an accessor, or a double 
                 //
                 if(line[col] == '.')
                 {
+                    bool take_dot = true;
                     if(col+1 < line.size())
                     {
-                        if(!isdigit(line[col+1]))
+                        if(isdigit(line[col+1]))
                         {
-                            std::cout << "| " << current_item << std::endl;
-                        }
-                        else
-                        {
+                            take_dot = false;
                             token_string += current_item;
                         }
+                    }
+
+                    if(take_dot)
+                    {
+                        t_stream.push_back({keywords["."], (int)col, (int)row, "."});
+                        continue;
                     }
                 }
 
@@ -209,7 +240,7 @@ namespace TAU
                         case '|': if(line[col+1] == '|'){ current_item = "||"; col++; } break;
                         case '<': if(line[col+1] == '<'){ current_item = "<<"; col++; } 
                                   if(line[col+1] == '='){ current_item = "<="; col++; } break;
-                        case '>': if(line[col+1] == '>'){ current_item = ">>"; col++; } 
+                        case '>': if(line[col+1] == '>'){ current_item = ">>"; col++;   break;} 
                                   if(line[col+1] == '='){ current_item = ">="; col++; } break;
                         case '!': if(line[col+1] == '='){ current_item = "!="; col++; } break;
                         case '-': if(line[col+1] == '>'){ current_item = "->"; col++; } break;
@@ -313,7 +344,12 @@ namespace TAU
         }
         else
         {
-            std::cout << "<< UNMATCHED TOKEN : " << token_string << " >>" << std::endl;
+            /*
+                TODO: 
+                Need to flag the error handler when it gets developed!
+            */
+            std::cout << "Error: Unknown token \"" << token_string << "\" at " << line << ":" << col << std::endl;
+            exit(EXIT_FAILURE);
         }   
     }
 
@@ -323,6 +359,15 @@ namespace TAU
 
     std::string TokenStream::getFileName() const
     {
-        return origin_file;
+        return origin_source_name;
+    }
+
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+
+    std::vector<Token> TokenStream::getStream() const
+    {
+        return t_stream;
     }
 }

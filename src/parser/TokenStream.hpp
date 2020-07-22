@@ -20,17 +20,25 @@ namespace TAU
         //! \brief Tokenize a source file
         void createStreamFromFile(std::string file);
 
+        //! \brief Tokenize a vector of lines of source
+        void createStreamFromVector(std::string source_name, std::vector<std::string> & source_vector);
+
         //! \brief Get file name 
+        //! \returns std::string of the source name given to represent the stream
         std::string getFileName() const;
 
+        //! \brief Get the size of the stream
+        //! \returns vector of tokens that is the built stream
+        std::vector<Token> getStream() const;
+
     private:
-        std::string origin_file;
+        std::string origin_source_name;
         std::vector<Token> t_stream;
         std::map<std::string, Token::Type> keywords;
         std::set<char> break_points;
 
         // Tokenize the file
-        void tokenize(std::vector<std::string> file_contents);
+        void tokenize(std::vector<std::string> & file_contents);
 
         void classifyToken(std::string token_string, int line, int col);
     };
