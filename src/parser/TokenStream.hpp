@@ -31,6 +31,8 @@ namespace TAU
 
         // Tokenize the file
         void tokenize(std::vector<std::string> file_contents);
+
+        void classifyToken(std::string token_string, int line, int col);
     };
 }
 

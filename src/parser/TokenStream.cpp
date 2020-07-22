@@ -128,20 +128,142 @@ namespace TAU
         std::cout << "TokenStream <file> : " << origin_file << std::endl;
         std::cout << "TokenStream <todo> : Tokenize the file here - This is the next thing to do" << std::endl;
     
+
+        std::string token_string;
         for(unsigned row = 0; row < file_contents.size(); row++)
         {
             std::string &line = file_contents[row];
-            std::string token_string;
-            // func function(fasm : int) -> int
-            for(unsigned col = 0; col < line.size();)
+
+            bool inside_string_literal = false;
+            for(unsigned col = 0; col < line.size(); col++)
             {
-                
+                // Skip leading white spaces on the line, This steps over by one so we dec at the end
+                //
+                if(col == 0) { while(col < line.size() && std::isspace(line[++col])){} col--;}
+
+                //  If a '"' is found we need to toggle us being in a string literal
+                //
+                if(line[col] == '"'){ inside_string_literal = (inside_string_literal) ? false : true; }
+
+                //  Skip spaces that aren't in a string
+                //
+                if(!inside_string_literal && std::isspace(line[col]))
+                { 
+                    //  If there was a space and we had something going on, we need to classify it
+                    //
+                    if(token_string.size() > 0) { classifyToken(token_string, row, col); token_string.clear(); }
+                    continue;
+                }
+
+                //  Grab the current item from the line @ col
+                //
+                std::string current_item; current_item += line[col];
+
+                //  Edge case to check if a double is being lexed
+                //
+                if(line[col] == '.')
+                {
+                    if(col+1 < line.size())
+                    {
+                        if(!isdigit(line[col+1]))
+                        {
+                            std::cout << "| " << current_item << std::endl;
+                        }
+                        else
+                        {
+                            token_string += current_item;
+                        }
+                    }
+                }
+
+                //  The current item was in the keywords its keys off a potential 2-size token
+                //
+                else if(keywords.find(current_item) != keywords.end() && !inside_string_literal)
+                {
+                    //  Right look ahead to see if we need to add any extras
+                    //
+                    if(col+1 < line.size())
+                    {
+                        switch(line[col])
+                        {
+                        case '*': if(line[col+1] == '*'){ current_item = "**"; col++; } break;
+                        case '&': if(line[col+1] == '&'){ current_item = "&&"; col++; } break;
+                        case '|': if(line[col+1] == '|'){ current_item = "||"; col++; } break;
+                        case '<': if(line[col+1] == '<'){ current_item = "<<"; col++; } 
+                                  if(line[col+1] == '='){ current_item = "<="; col++; } break;
+                        case '>': if(line[col+1] == '>'){ current_item = ">>"; col++; } 
+                                  if(line[col+1] == '='){ current_item = ">="; col++; } break;
+                        case '!': if(line[col+1] == '='){ current_item = "!="; col++; } break;
+                        case '-': if(line[col+1] == '>'){ current_item = "->"; col++; } break;
+                        case ':': if(line[col+1] == '='){ current_item = ":="; col++; } break;
+                        case '/': if(line[col+1] == '/')
+                                  { 
+                                    col = line.size();
+                                    token_string.clear();
+                                    continue;
+                                  } 
+                        break;
+                        default: break;
+                        }
+                    }
+
+                    //  Before we add the token we just found we need to see if a token was being 
+                    //  built. Here we need to figure out what kind of token it is
+                    //
+                    if(token_string.size() > 0)
+                    {
+                        //  Classify the token on line / col. We need to see if its a var or identifier
+                        //
+                        classifyToken(token_string, row, col);
+
+                        // Reset token
+                        token_string.clear();
+                    }
+
+                    //  Add token
+                    //
+                    std::cout << "| " << current_item << std::endl;
+                }
+                else
+                {
+                    token_string += current_item;
+                }
+
+
+                // Check if the string contains a keyword
+                //
+                if(keywords.find(token_string) != keywords.end())
+                {
+                    if(col+1 < line.size())
+                    {
+                        if( std::isspace(line[col+1]) || (keywords.find(std::string(1, line[col+1])) != keywords.end()))
+                        {
+                            std::cout << "Found keyword : " << token_string << std::endl;
+
+                            token_string.clear();
+                        }
+                    }
+                }
+            }
+
+            // Cross-line thingamabob 
+            //
+            if(token_string.size() != 0)
+            {
+                classifyToken(token_string, row, line.size());
+                token_string.clear();
             }
         }
-    
-    
-    
-    
+    }
+
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+
+    void TokenStream::classifyToken(std::string token_string, int line,  int col)
+    {
+        std::cout << "Need to classify token string : " 
+                  << token_string << std::endl;
     }
 
     // -----------------------------------------
