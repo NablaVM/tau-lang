@@ -3,9 +3,19 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <regex>
 
 namespace TAU
 {
+    namespace
+    {
+        std::regex reg_string_literal("\"([^\"\\\\]|\\\\.)*\"");
+        std::regex reg_double_literal("^[0-9]+.[0-9]+$");
+        std::regex reg_integer_literal("(^[0-9]+$)|(^\\-[0-9]+$)");
+        std::regex reg_char_literal("(^\\'.\\')");
+        std::regex reg_identifier("(^[a-zA-Z_]+[0-9]?)");
+    }
+
     // -----------------------------------------
     //
     // -----------------------------------------
@@ -117,6 +127,14 @@ namespace TAU
         //  Tokenize the file
         //
         tokenize(source_file);
+
+        std::cout << "TOKEN STREAM OUTPUT : " << std::endl;
+
+        for(auto t : t_stream)
+        {
+            std::cout << t.toString() << " ";
+        } 
+        std::cout << std::endl;
     }
 
     // -----------------------------------------
@@ -141,9 +159,9 @@ namespace TAU
                 //
                 if(col == 0) { while(col < line.size() && std::isspace(line[++col])){} col--;}
 
-                //  If a '"' is found we need to toggle us being in a string literal
+                //  If a '"' is found without a '\' before it we need to toggle us being in a string literal
                 //
-                if(line[col] == '"'){ inside_string_literal = (inside_string_literal) ? false : true; }
+                if(line[col] == '"' && (col > 0 && line[col-1] != '\\')){ inside_string_literal = (inside_string_literal) ? false : true; }
 
                 //  Skip spaces that aren't in a string
                 //
@@ -222,7 +240,7 @@ namespace TAU
 
                     //  Add token
                     //
-                    std::cout << "| " << current_item << std::endl;
+                    t_stream.push_back({keywords[current_item], (int)col, (int)row, current_item});
                 }
                 else
                 {
@@ -238,7 +256,9 @@ namespace TAU
                     {
                         if( std::isspace(line[col+1]) || (keywords.find(std::string(1, line[col+1])) != keywords.end()))
                         {
-                            std::cout << "Found keyword : " << token_string << std::endl;
+                            //std::cout << "Found keyword : " << token_string << std::endl;
+
+                            t_stream.push_back({keywords[token_string], (int)col, (int)row, token_string});
 
                             token_string.clear();
                         }
@@ -250,7 +270,7 @@ namespace TAU
             //
             if(token_string.size() != 0)
             {
-                classifyToken(token_string, row, line.size());
+                classifyToken(token_string, (int)row, line.size());
                 token_string.clear();
             }
         }
@@ -262,8 +282,39 @@ namespace TAU
 
     void TokenStream::classifyToken(std::string token_string, int line,  int col)
     {
-        std::cout << "Need to classify token string : " 
-                  << token_string << std::endl;
+        //std::cout << "Need to classify token string : " 
+        //          << token_string << " | ";
+
+
+        if(std::regex_match(token_string, reg_string_literal))
+        {
+            //std::cout << "STRING LITERAL" << std::endl;
+            t_stream.push_back({Token::Type::STRING_L, col, line, token_string});
+        }
+        else if(std::regex_match(token_string, reg_integer_literal))
+        {
+            //std::cout << "INTEGER LITERAL" << std::endl;
+            t_stream.push_back({Token::Type::INT_L, col, line, token_string});
+        }
+        else if(std::regex_match(token_string, reg_double_literal))
+        {
+            //std::cout << "DOUBLE LITERAL" << std::endl;
+            t_stream.push_back({Token::Type::DOUBLE_L, col, line, token_string});
+        }
+        else if(std::regex_match(token_string, reg_char_literal))
+        {
+            //std::cout << "CHAR LITERAL" << std::endl;
+            t_stream.push_back({Token::Type::CHAR_L, col, line, token_string});
+        }
+        else if(std::regex_match(token_string, reg_identifier))
+        {
+            //std::cout << "IDENTIFIER" << std::endl;
+            t_stream.push_back({Token::Type::IDENTIFIER, col, line, token_string});
+        }
+        else
+        {
+            std::cout << "<< UNMATCHED TOKEN : " << token_string << " >>" << std::endl;
+        }   
     }
 
     // -----------------------------------------

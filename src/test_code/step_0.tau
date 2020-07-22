@@ -17,6 +17,10 @@ func some_func() -> double
 {
     a ** b
 
+    s := "THis is a literal string"
+
+    k := "So is \"Th  is\" "
+
     // Still need to look right on '.' to check double
     return 0.048972897;
 }
