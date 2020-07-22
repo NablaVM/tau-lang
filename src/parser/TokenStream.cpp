@@ -162,7 +162,7 @@ namespace TAU
                 //
                 if(line[col] == '"')
                 {
-                    if(col == 0) { inside_string_literal = true; }
+                    if(token_string.size() == 0) { inside_string_literal = true; }
                     else if (col > 0 && line[col-1] != '\\') { inside_string_literal = false; }
                 }
                 
@@ -178,7 +178,7 @@ namespace TAU
                 //
                 if(line[col] == '\'')
                 {
-                    if(col == 0) { inside_char_literal = true; }
+                    if(token_string.size() == 0 ) { inside_char_literal = true; }
                     else if (col > 0 && line[col-1] != '\\') { inside_char_literal = false; }
                 }
 
