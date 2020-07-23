@@ -59,12 +59,6 @@ TokenStream::TokenStream()
     keywords["["]    = Token::Type::L_BRACKET;
     keywords["]"]    = Token::Type::R_BRACKET;
     keywords["->"]   = Token::Type::ARROW;
-
-    break_points = {
-        ';',',',':','.','+','-','/','*','%','&','|',
-        '^','~','<','>','=','!',':','(',')','{','}','[',']',
-        ' ', '\t', '\n', '\r'
-    };
 }
 
 // -----------------------------------------
@@ -182,7 +176,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
     {
         std::string token_string;
 
-        for(unsigned col = 0; col < line.size(); )
+        for(std::size_t col = 0; col < line.size(); )
         {
             switch(state)
             {
@@ -256,7 +250,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         {
                             Token::Type type = keywords.at(token_string);
                             Token tok = { type, col - token_string.size(), row, token_string };
-                            t_stream.push_back(tok);
+                            stream.push_back(tok);
                         }
                         catch(std::out_of_range &e)
                         {
@@ -293,7 +287,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                             }
 
                             Token tk = { type, col, row, match[0].str() };
-                            t_stream.push_back(tk);
+                            stream.push_back(tk);
 
                             col += match[0].length();
                         }
@@ -306,7 +300,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         if(std::regex_search(linesub, match, lit_char_reg))
                         {
                             Token tk = { Token::Type::CHAR_L, col, row, match[0].str() };
-                            t_stream.push_back(tk);
+                            stream.push_back(tk);
                             col += match[0].length();
                         }
                         // Otherwise there is something wrong with the literal.
@@ -323,7 +317,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         if(std::regex_search(linesub, match, lit_str_reg))
                         {
                             Token tk = { Token::Type::STRING_L, col, row, match[0].str() };
-                            t_stream.push_back(tk);
+                            stream.push_back(tk);
                             col += match[0].length();
                         }
 
@@ -363,10 +357,13 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         }
                         catch(std::out_of_range &e)
                         {
+                            // This is not an error. It just means that our token is
+                            // not one of our keywords. Nothing needs to be acted
+                            // upon here.
                         }
 
                         Token tk = { type, col-token_string.size(), row, match[0].str() };
-                        t_stream.push_back(tk);
+                        stream.push_back(tk);
                     }
                     else
                     {
@@ -388,14 +385,6 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
 //
 // -----------------------------------------
 
-void TokenStream::classifyToken(std::string token_string, int line,  int col)
-{
-}
-
-// -----------------------------------------
-//
-// -----------------------------------------
-
 std::string TokenStream::getFileName() const
 {
     return origin_source_name;
@@ -407,6 +396,6 @@ std::string TokenStream::getFileName() const
 
 std::vector<Token> TokenStream::getStream() const
 {
-    return t_stream;
+    return stream;
 }
 }

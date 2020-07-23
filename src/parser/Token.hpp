@@ -45,63 +45,67 @@ namespace TAU
             ARROW, 
         };
 
-        Type type;          //! The type 
-        int start_pos;      //! Start position of the token on its line  
-        int line_number;    //! Line of source token came from
-        std::string value;  //! Value of the token
+        Type        type;  //! The type 
+        std::size_t col;   //! Start position of the token on its line  
+        std::size_t line;  //! Line of source token came from
+        std::string value; //! Value of the token
 
-        std::string toString() const 
+        inline std::string toString(bool verbose = false) const 
         {
+            std::string type_string;
             switch(type)
             {
-            case Type::FUNC       : return "FUNC";
-            case Type::ASM        : return "ASM";
-            case Type::RETURN     : return "RETURN";
-            case Type::INT        : return "INT";
-            case Type::DOUBLE     : return "DOUBLE";
-            case Type::CHAR       : return "CHAR";
-            case Type::STRUCT     : return "STRUCT";
-            case Type::INT_L      : return "INT_L";
-            case Type::DOUBLE_L   : return "DOUBLE_L";
-            case Type::CHAR_L     : return "CHAR_L";
-            case Type::STRING_L   : return "STRING_L";
-            case Type::IDENTIFIER : return "IDENTIFIER";
-            case Type::SEMI       : return "SEMI";
-            case Type::COMMA      : return "COMMA";
-            case Type::COLON      : return "COLON";
-            case Type::DOT        : return "DOT";
-            case Type::PLUS       : return "PLUS";
-            case Type::MINUS      : return "MINUS";
-            case Type::SLASH      : return "SLASH";
-            case Type::STAR       : return "STAR";
-            case Type::D_STAR     : return "D_STAR";
-            case Type::PCT        : return "PCT";
-            case Type::AMP        : return "AMP";
-            case Type::D_AMP      : return "D_AMP";
-            case Type::PIPE       : return "PIPE";
-            case Type::D_PIPE     : return "D_PIPE";
-            case Type::HAT        : return "HAT";
-            case Type::SHL        : return "SHL";
-            case Type::SHR        : return "SHR";
-            case Type::TILDE      : return "TILDE";
-            case Type::LT         : return "LT";
-            case Type::LTE        : return "LTE";
-            case Type::GT         : return "GT";
-            case Type::GTE        : return "GTE";
-            case Type::EQ         : return "EQ";
-            case Type::BANG_EQ    : return "BANG_EQ";
-            case Type::BANG       : return "BANG";
-            case Type::ASSIGN     : return "ASSIGN ";
-            case Type::L_PAREN    : return "L_PAREN";
-            case Type::R_PAREN    : return "R_PAREN";
-            case Type::L_BRACE    : return "L_BRACE";
-            case Type::R_BRACE    : return "R_BRACE";
-            case Type::L_BRACKET  : return "L_BRACKET";
-            case Type::R_BRACKET  : return "R_BRACKET";
-            case Type::ARROW      : return "ARROW";
-            default:
-                return "TOKEN toString >> UNKNOWN TYPE";
+            case Type::FUNC       : type_string = "FUNC";       break;
+            case Type::ASM        : type_string = "ASM";        break;
+            case Type::RETURN     : type_string = "RETURN";     break;
+            case Type::INT        : type_string = "INT";        break;
+            case Type::DOUBLE     : type_string = "DOUBLE";     break;
+            case Type::CHAR       : type_string = "CHAR";       break;
+            case Type::STRUCT     : type_string = "STRUCT";     break;
+            case Type::INT_L      : type_string = "INT_L";      break;
+            case Type::DOUBLE_L   : type_string = "DOUBLE_L";   break;
+            case Type::CHAR_L     : type_string = "CHAR_L";     break;
+            case Type::STRING_L   : type_string = "STRING_L";   break;
+            case Type::IDENTIFIER : type_string = "IDENTIFIER"; break;
+            case Type::SEMI       : type_string = "SEMI";       break;
+            case Type::COMMA      : type_string = "COMMA";      break;
+            case Type::COLON      : type_string = "COLON";      break;
+            case Type::DOT        : type_string = "DOT";        break;
+            case Type::PLUS       : type_string = "PLUS";       break;
+            case Type::MINUS      : type_string = "MINUS";      break;
+            case Type::SLASH      : type_string = "SLASH";      break;
+            case Type::STAR       : type_string = "STAR";       break;
+            case Type::D_STAR     : type_string = "D_STAR";     break;
+            case Type::PCT        : type_string = "PCT";        break;
+            case Type::AMP        : type_string = "AMP";        break;
+            case Type::D_AMP      : type_string = "D_AMP";      break;
+            case Type::PIPE       : type_string = "PIPE";       break;
+            case Type::D_PIPE     : type_string = "D_PIPE";     break;
+            case Type::HAT        : type_string = "HAT";        break;
+            case Type::SHL        : type_string = "SHL";        break;
+            case Type::SHR        : type_string = "SHR";        break;
+            case Type::TILDE      : type_string = "TILDE";      break;
+            case Type::LT         : type_string = "LT";         break;
+            case Type::LTE        : type_string = "LTE";        break;
+            case Type::GT         : type_string = "GT";         break;
+            case Type::GTE        : type_string = "GTE";        break;
+            case Type::EQ         : type_string = "EQ";         break;
+            case Type::BANG_EQ    : type_string = "BANG_EQ";    break;
+            case Type::BANG       : type_string = "BANG";       break;
+            case Type::ASSIGN     : type_string = "ASSIGN ";    break;
+            case Type::L_PAREN    : type_string = "L_PAREN";    break;
+            case Type::R_PAREN    : type_string = "R_PAREN";    break;
+            case Type::L_BRACE    : type_string = "L_BRACE";    break;
+            case Type::R_BRACE    : type_string = "R_BRACE";    break;
+            case Type::L_BRACKET  : type_string = "L_BRACKET";  break;
+            case Type::R_BRACKET  : type_string = "R_BRACKET";  break;
+            case Type::ARROW      : type_string = "ARROW";      break;
+            default               : type_string = "UNKNOWN";    break;
             }
+
+            if(!verbose){ return type_string; }
+
+            return std::to_string(line) + ":" + std::to_string(col) + "(" + type_string + "): " + value;
         }
     };
 }
