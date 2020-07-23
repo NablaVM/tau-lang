@@ -7,14 +7,6 @@
 
 namespace TAU
 {
-namespace
-{
-std::regex reg_string_literal("\"([^\"\\\\]|\\\\.)*\"");
-std::regex reg_double_literal("^[0-9]+.[0-9]+$");
-std::regex reg_integer_literal("(^[0-9]+$)|(^\\-[0-9]+$)");
-std::regex reg_char_literal(R"('\\*.{1}')");
-std::regex reg_identifier("(^[a-zA-Z_]+[0-9]*)");
-}
 
 // -----------------------------------------
 //
@@ -111,7 +103,6 @@ void TokenStream::createStreamFromFile(std::string file)
     std::string line;
     while(std::getline(in, line))
     {
-//        //  std::cout << "TokenStream <line> : " << line << std::endl;
 
         source_file.push_back(line);
     }
@@ -145,34 +136,37 @@ void TokenStream::createStreamFromVector(std::string source_name, std::vector<st
 
 void TokenStream::tokenize(std::vector<std::string> & file_contents)
 {
-//    std::cout << "TokenStream <file> : " << origin_source_name << std::endl;
-//    std::cout << "TokenStream <todo> : Tokenize the file here - This is the next thing to do" << std::endl;
-
     unsigned row = 0;
 
+    // States for what we might encounter in the source.
     enum class State
     {
-        NONE,
+        CLASSIFY,
         WHITESPACE,
         SYMBOL,
         LITERAL,
         LABEL
-    } state = State::NONE;
+    } state = State::CLASSIFY;
 
 
+    // All valid characters which may begin a symbol.
     std::set<char> sym_set = { 
         ';',',',':','.','+','-','/','*','%','&','|',
         '^','~','<','>','=','!','(',')','{','}','[',']'
     };
 
+    // All valid characters which may begin a literal.
     std::set<char> lit_set = { 
         '\'', '\"', '0', '1', '2', '3', 
         '4' , '5' , '6', '7', '8', '9'
     };
+
+    // Regexes to match literals.
     std::regex lit_num_reg (R"(\d+(\.\d+)?)");
     std::regex lit_char_reg(R"('\\*.')");
     std::regex lit_str_reg (R"("([^"\\]|\\.)*")");
 
+    // All valid characters which may begin a label -- a keyword or identifier.
     std::set<char> lab_set = {
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 
         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
@@ -180,6 +174,9 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
         'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 
         'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_'
     };
+    
+    // Regex to match a valid label.
+    std::regex label_reg(R"([a-zA-Z_]\w*)");
 
     for(auto line : file_contents)
     {
@@ -189,61 +186,72 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
         {
             switch(state)
             {
-            case State::NONE:
-//                std::cout << "TokenStream: State::NONE" << std::endl;
+            // Classify which type of token we're looking at.
+            case State::CLASSIFY:
+
                 // Starting a new token.
                 token_string.clear();
-                // Any character will suffice.
+                
+                // Classify which type of token it is...
                 if(std::isspace(line[col]))      { state = State::WHITESPACE; }           
                 else if(sym_set.count(line[col])){ state = State::SYMBOL;     }
                 else if(lit_set.count(line[col])){ state = State::LITERAL;    }
                 else if(lab_set.count(line[col])){ state = State::LABEL;      }
+                // ...or fail because the current character is not a valid one.
+                else                             { exit(EXIT_FAILURE);        }
                 break;
+
+            // Consume whitespace characters.
             case State::WHITESPACE:
-//                std::cout << "TokenStream: State::WHITESPACE" << std::endl;
-                // Process whitespace characters.
+
                 if(std::isspace(line[col]))
                 { 
                     col++; 
                 }
                 else
                 {
-                    state = State::NONE;
+                    // Done with whitespace. Back to classify.
+                    state = State::CLASSIFY;
                 }
                 break;
+
+            // Process a symbol token.
             case State::SYMBOL:
-//                std::cout << "TokenStream: State::SYMBOL" << std::endl;
-                // Consume symbol.
-                // Check for comment.
+
+                // Check if the current symbol is a comment delimiter and bail if it is.
                 if(col+1 < line.size() && line[col] == '/' && line[col+1] == '/')
                 {
-//                    std::cout << "TokenStream: COMMENT LINE." << std::endl;
-                    state = State::NONE;
+                    state = State::CLASSIFY;
                     col = line.size();
                 }
                 else
                 {
+                    // Check if current character is a valid symbol character.
                     if(sym_set.count(line[col]))
                     {
                         token_string += line[col];
 
+                        // Need to grab the next character if it's also a symbol character
+                        // in case it's a two-character symbol token.
                         if(col + 1 < line.size() && sym_set.count(line[col + 1]))
                         {
                             token_string += line[col + 1];
                             col++;
                         }
 
+                        // Increment from the original character grab.
                         col++;
-                        state = State::NONE;
 
+                        // If our two-character symbol isn't in the keywords map, it's
+                        // not a valid symbol, so back up one to see if we have a 
+                        // one-character symbol on our hands.
                         if(keywords.find(token_string) == keywords.end())
                         {
                             token_string.pop_back();
                             col--;
                         }
 
-//                        std::cout << "TokenStream: SYMBOL: " << token_string << std::endl;
-
+                        // Now try to get the token type from our map.
                         try
                         {
                             Token::Type type = keywords.at(token_string);
@@ -252,101 +260,127 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         }
                         catch(std::out_of_range &e)
                         {
-//                            std::cout << "TokenStream: Invalid symbol." << std::endl;
+                            // Invalid value. Bail.
+                            exit(EXIT_FAILURE);
                         }
+
+                        state = State::CLASSIFY;
                     }
                 }
 
                 break;
+
+            // Process a numeric, character, or string literal token.
             case State::LITERAL:
-//                std::cout << "TokenStream: State::LITERAL" << std::endl;
+                {
+                    // Set up to do regexes. Substring the line so we start our search
+                    // at the current column instead of the beginning of the line.
+                    std::smatch match;
+                    std::string linesub(line, col);
+
+                    // Match if a numeric string literal is detected.
+                    if(std::isdigit(line[col]))
+                    {
+                        if(std::regex_search(linesub, match, lit_num_reg))
+                        {
+                            // Default to int literal because...
+                            Token::Type type = Token::Type::INT_L;
+
+                            // ...if we find a dot we'll change it to a double.
+                            if(match[0].str().find(".") != std::string::npos)
+                            {
+                                type = Token::Type::DOUBLE_L;
+                            }
+
+                            Token tk = { type, col, row, match[0].str() };
+                            t_stream.push_back(tk);
+
+                            col += match[0].length();
+                        }
+                    }
+
+                    // If the first character is a ' then we're looking at a potential character literal.
+                    else if(line[col] == '\'')
+                    {
+                        // If regex matches, then we have a valid character literal.
+                        if(std::regex_search(linesub, match, lit_char_reg))
+                        {
+                            Token tk = { Token::Type::CHAR_L, col, row, match[0].str() };
+                            t_stream.push_back(tk);
+                            col += match[0].length();
+                        }
+                        // Otherwise there is something wrong with the literal.
+                        else
+                        {
+                            exit(EXIT_FAILURE);
+                        }
+                    }
+
+                    // If the first character is a " then we're looking at a potential string literal.
+                    else if(line[col] == '\"')
+                    {
+                        // If regex matches, then we have a valid string literal.
+                        if(std::regex_search(linesub, match, lit_str_reg))
+                        {
+                            Token tk = { Token::Type::STRING_L, col, row, match[0].str() };
+                            t_stream.push_back(tk);
+                            col += match[0].length();
+                        }
+
+                        // Otherwise there is something wrong with the literal.
+                        else
+                        {
+                            exit(EXIT_FAILURE);
+                        }
+                    }
+
+                    state = State::CLASSIFY;
+                }
+
+                break;
+
+            // Process a label -- either a keyword or an identifier.
+            case State::LABEL:
                 {
                     std::smatch match;
                     std::string linesub(line, col);
-//                    std::cout << "TokenStream: linesub: " << linesub << std::endl;
-                    if(std::isdigit(line[col]) && std::regex_search(linesub, match, lit_num_reg))
+
+                    // The fact that we got to the LABEL case at all means we have
+                    // a valid label to regex against, so this can never fail. 
+                    // If it does, something is horribly horribly wrong and we damn
+                    // well better bail.
+                    if(std::regex_search(linesub, match, label_reg))
                     {
-//                        std::cout << "TokenStream: Found numeric literal: " << match[0] << std::endl;
+                        col += match[0].length();
+                        // Default to IDENTIFIER
+                        Token::Type type = Token::Type::IDENTIFIER;
 
-                        Token::Type type = Token::Type::INT_L;
-
-                        if(match[0].str().find(".") != std::string::npos)
+                        // If our match is in the keywords map, set it to that instead
+                        // of IDENTIFIER.
+                        try
                         {
-                            type = Token::Type::DOUBLE_L;
+                            type = keywords.at(match[0].str());
+                        }
+                        catch(std::out_of_range &e)
+                        {
                         }
 
-                        Token tk = { type, col, row, match[0].str() };
+                        Token tk = { type, col-token_string.size(), row, match[0].str() };
                         t_stream.push_back(tk);
-
-                        col += match[0].length();
                     }
-                    if(line[col] == '\'' && std::regex_search(linesub, match, lit_char_reg))
+                    else
                     {
-//                        std::cout << "TokenStream: Found char literal: " << match[0] << std::endl;
-//                        std::cout << "len = " << match[0].length() << std::endl;
-
-                        Token tk = { Token::Type::CHAR_L, col, row, match[0].str() };
-                        t_stream.push_back(tk);
-
-                        col += match[0].length();
-                    }
-                    if(line[col] == '\"' && std::regex_search(linesub, match, lit_str_reg))
-                    {
-//                        std::cout << "TokenStream: Found string literal: " << match[0] << std::endl;
-//                        std::cout << "len = " << match[0].length() << std::endl;
-
-                        Token tk = { Token::Type::STRING_L, col, row, match[0].str() };
-                        t_stream.push_back(tk);
-
-                        col += match[0].length();
+                        exit(EXIT_FAILURE);
                     }
 
-                    state = State::NONE;
+                    state = State::CLASSIFY;
                 }
-
-                // Consume literal.
-                break;
-            case State::LABEL:
-//                std::cout << "TokenStream: State::LABEL" << std::endl;
-
-                if(lab_set.count(line[col]))
-                {
-                    token_string += line[col];
-                    col++;
-                }
-
-                if(col >= line.size() || !lab_set.count(line[col]))
-                {
-//                    std::cout << "TokenStream: LABEL: " << token_string << std::endl;
-
-                    Token::Type type = Token::Type::IDENTIFIER;
-
-                    try
-                    {
-                        type = keywords.at(token_string);
-                    }
-                    catch(std::out_of_range &e)
-                    {
-//                        std::cout << "TokenStream: Label is not keyword. Assuming identifier." << std::endl;
-                    }
-
-                    Token tok = { type, col-token_string.size(), row, token_string };
-                    t_stream.push_back(tok);
-
-                    state = State::NONE;
-                }
-                // Consume label.
                 break;
             }
         }
 
-        state = State::NONE;
+        state = State::CLASSIFY;
         row++;
-    }
-//    std::cout << "TokenStream: TOKENS:" << std::endl;
-    for(auto t : t_stream)
-    {
-//        std::cout << t.line_number << ":" << t.start_pos << ": " << t.value << std::endl;
     }
 }
 
@@ -356,44 +390,6 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
 
 void TokenStream::classifyToken(std::string token_string, int line,  int col)
 {
-//    //std::cout << "Need to classify token string : " 
-    //          << token_string << " | ";
-
-
-    if(std::regex_match(token_string, reg_string_literal))
-    {
-//        //std::cout << "STRING LITERAL" << std::endl;
-        t_stream.push_back({Token::Type::STRING_L, col, line, token_string});
-    }
-    else if(std::regex_match(token_string, reg_integer_literal))
-    {
-//        //std::cout << "INTEGER LITERAL" << std::endl;
-        t_stream.push_back({Token::Type::INT_L, col, line, token_string});
-    }
-    else if(std::regex_match(token_string, reg_double_literal))
-    {
-//        //std::cout << "DOUBLE LITERAL" << std::endl;
-        t_stream.push_back({Token::Type::DOUBLE_L, col, line, token_string});
-    }
-    else if(std::regex_match(token_string, reg_char_literal))
-    {
-//        //std::cout << "CHAR LITERAL" << std::endl;
-        t_stream.push_back({Token::Type::CHAR_L, col, line, token_string});
-    }
-    else if(std::regex_match(token_string, reg_identifier))
-    {
-//        //std::cout << "IDENTIFIER" << std::endl;
-        t_stream.push_back({Token::Type::IDENTIFIER, col, line, token_string});
-    }
-    else
-    {
-        /*
-TODO: 
-Need to flag the error handler when it gets developed!
-         */
-//        std::cout << "Error: Unknown token \"" << token_string << "\" at " << line << ":" << col << std::endl;
-        exit(EXIT_FAILURE);
-    }   
 }
 
 // -----------------------------------------
