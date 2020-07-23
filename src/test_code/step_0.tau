@@ -1,20 +1,28 @@
 // Functions with return types that are just literal things
 // 
 
-func nothing() 
+func function() 
 {
 }
 
 func some_char() -> char 
 {
+    // This would be invalid, but its ensuring that a b c get their own classification
+    x : string := a b c 
 
     return '4'; 
 }
 
 func some_func() -> double 
 {
+    a ** b
 
-    return 0.0;
+    s := "THis is a literal string"
+
+    k := "So is \"Th  is\" "
+
+    // Still need to look right on '.' to check double
+    return 0.048972897;
 }
 
 func main() -> int 
