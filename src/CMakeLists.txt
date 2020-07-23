@@ -39,6 +39,8 @@ set(PARSER_SOURCES
     ${PARSER_DIR}/TokenStream.cpp
 )
 
+add_library(tau-parser ${PARSER_SOURCES})
+
 #
 #   Include directories
 #
@@ -58,12 +60,12 @@ endif()
 #
 add_executable(tau
         ${DRIVER_SOURCES}
-        ${PARSER_SOURCES}
         main.cpp
 )
 
 target_link_libraries(tau
     PRIVATE
+        tau-parser
         ${LIBNABLA_LIBRARIES}
 )
 
