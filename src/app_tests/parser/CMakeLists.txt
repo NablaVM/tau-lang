@@ -4,6 +4,7 @@ link_directories(${CPPUTEST_LIBRARIES})
 include_directories(${PARSER_DIR})
 
 add_executable(tau_parser_test
+        TokenStreamTest.cpp
         main.cpp
 )
 
