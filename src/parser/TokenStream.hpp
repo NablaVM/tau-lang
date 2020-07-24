@@ -2,6 +2,7 @@
 #define TAU_TOKEN_STREAM_HPP
 
 #include "Token.hpp"
+#include "Reporter.hpp"
 
 #include <map>
 #include <set>
@@ -15,7 +16,8 @@ class TokenStream
 {
 public:
     //! \brief Create a token stream
-    TokenStream();
+    //! \param reporter The object that will be used to report issues
+    TokenStream(Reporter & reporter);
 
     //! \brief Tokenize a source file
     void createStreamFromFile(std::string file);
@@ -32,6 +34,7 @@ public:
     std::vector<Token> getStream() const;
 
 private:
+    Reporter                          &reporter;
     std::string                        origin_source_name;
     std::vector<Token>                 stream;
     std::map<std::string, Token::Type> keywords;

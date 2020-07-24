@@ -11,7 +11,8 @@ namespace TAU
     //
     // -----------------------------------------
     
-    Parser::Parser(Driver & driver) : driver(driver)
+    Parser::Parser(Reporter & reporter, Driver & driver) : 
+        driver(driver), reporter(reporter)
     {
         /*
             The driver is given to the parser so if we run out of token streams and have

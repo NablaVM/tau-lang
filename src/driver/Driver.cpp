@@ -14,7 +14,9 @@ namespace TAU
 
     Driver::Driver() 
     {
-        parser = new Parser(*this);
+        stream_reporter = new Reporter("TAU::TokenStream");
+        parser_reporter = new Reporter("TAU::Parser");
+        parser = new Parser(*parser_reporter, *this);
     }
 
     // -----------------------------------------
@@ -24,6 +26,8 @@ namespace TAU
     Driver::~Driver() 
     {
         delete parser;
+        delete parser_reporter;
+        delete stream_reporter;
     }
 
     // -----------------------------------------
@@ -63,7 +67,10 @@ namespace TAU
 
             //  Create a token stream for the file
             //
-            TokenStream * token_stream = new TokenStream();
+            TokenStream * token_stream = new TokenStream(*stream_reporter);
+
+            //  Populate the stream from file
+            //
             token_stream->createStreamFromFile(item);
 
             // Hand the token stream to the parser - it will handle clean up

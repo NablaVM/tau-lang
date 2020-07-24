@@ -12,7 +12,7 @@ namespace TAU
 //
 // -----------------------------------------
 
-TokenStream::TokenStream()
+TokenStream::TokenStream(Reporter &reporter) : reporter(reporter)
 {
     keywords["func"] = Token::Type::FUNC;
     keywords["asm"]  = Token::Type::ASM;
@@ -97,7 +97,6 @@ void TokenStream::createStreamFromFile(std::string file)
     std::string line;
     while(std::getline(in, line))
     {
-
         source_file.push_back(line);
     }
 
@@ -121,7 +120,6 @@ void TokenStream::createStreamFromVector(std::string source_name, std::vector<st
     //  Tokenize the file
     //
     tokenize(source_vector);
-
 }
 
 // -----------------------------------------
@@ -192,7 +190,18 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                 else if(lit_set.count(line[col])){ state = State::LITERAL;    }
                 else if(lab_set.count(line[col])){ state = State::LABEL;      }
                 // ...or fail because the current character is not a valid one.
-                else                             { exit(EXIT_FAILURE);        }
+                else                             
+                { 
+                    reporter.issueReport({
+                        Reporter::Level::ERROR,
+                        Reporter::Indicator::ARROW,
+                        row,
+                        col,
+                        origin_source_name,
+                        line,
+                        "Invalid character"
+                    });     
+                }
                 break;
 
             // Consume whitespace characters.
@@ -254,8 +263,15 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         }
                         catch(std::out_of_range &e)
                         {
-                            // Invalid value. Bail.
-                            exit(EXIT_FAILURE);
+                            reporter.issueReport({
+                                Reporter::Level::ERROR,
+                                Reporter::Indicator::LINE,
+                                row,
+                                col,
+                                origin_source_name,
+                                line,
+                                "Unrecognized symbol : " + token_string
+                            });
                         }
 
                         state = State::CLASSIFY;
@@ -306,7 +322,15 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         // Otherwise there is something wrong with the literal.
                         else
                         {
-                            exit(EXIT_FAILURE);
+                            reporter.issueReport({
+                                Reporter::Level::ERROR,
+                                Reporter::Indicator::LINE,
+                                row,
+                                col,
+                                origin_source_name,
+                                line,
+                                "Malformed character literal"
+                            });
                         }
                     }
 
@@ -324,7 +348,15 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         // Otherwise there is something wrong with the literal.
                         else
                         {
-                            exit(EXIT_FAILURE);
+                            reporter.issueReport({
+                                Reporter::Level::ERROR,
+                                Reporter::Indicator::LINE,
+                                row,
+                                col,
+                                origin_source_name,
+                                line,
+                                "Unterminated string literal"
+                            });
                         }
                     }
 
@@ -367,7 +399,15 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                     }
                     else
                     {
-                        exit(EXIT_FAILURE);
+                        reporter.issueReport({
+                            Reporter::Level::ERROR,
+                            Reporter::Indicator::LINE,
+                            row,
+                            col,
+                            origin_source_name,
+                            line,
+                            "Unrecognized character sequence when matching label"
+                        });
                     }
 
                     state = State::CLASSIFY;
