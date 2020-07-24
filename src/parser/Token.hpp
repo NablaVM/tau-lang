@@ -1,6 +1,8 @@
 #ifndef TAU_TOKEN_HPP
 #define TAU_TOKEN_HPP
 
+#include "Lexeme.hpp"
+
 #include <map>
 #include <string>
 
@@ -11,7 +13,7 @@
 namespace TAU
 {
     //! \brief A single token item
-    class Token
+    class Token : public Lexeme
     {
     public:
 
@@ -44,6 +46,19 @@ namespace TAU
 
             ARROW, 
         };
+
+        //! \brief Construct a token
+        //! \param type  The type of the token
+        //! \param col   The column that the token was found on
+        //! \param line  The line number the token was found on
+        //! \param value The value of the token
+        Token(Type type, std::size_t col, std::size_t line, std::string value) 
+            : Lexeme(Lexeme::Variant::TOKEN), type(type), col(col), line(line), value(value){}
+
+        //! \brief Construct a token with only a type for building lexemes to match
+        //!        against token streams
+        //! \param type The type of the token
+        Token(Type type) : Lexeme(Lexeme::Variant::TOKEN), type(type), col(0), line(0), value(""){}
 
         Type        type;  //! The type 
         std::size_t col;   //! Start position of the token on its line  

@@ -10,6 +10,9 @@ namespace
     TAU::Parser parser;
 }
 
+
+void build_grammar();
+
 int main(int argc, char ** argv) 
 {
     // Convert arguments to a vector of strings, removing the program name

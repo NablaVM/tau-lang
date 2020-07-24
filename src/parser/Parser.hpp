@@ -1,11 +1,14 @@
 #ifndef TAU_PARSER_HPP
 #define TAU_PARSER_HPP
 
+#include "Ast.hpp"
+#include "Lexeme.hpp"
 #include "Driver.hpp"
 #include "Reporter.hpp"
 #include "TokenStream.hpp"
 #include <string>
 #include <vector>
+#include <map>
 
 namespace TAU
 {
@@ -28,6 +31,18 @@ namespace TAU
         void parse();
 
     private:
+
+        enum class State
+        {
+            START,
+            FUNCTION_DECLS,
+            FUNCTION_PARAMS,
+            RETURN_VALUE,
+            FUNCTION_BLOCK
+        };
+
+        State parser_state;
+
         Reporter reporter;
 
         std::vector<TokenStream *> streams;

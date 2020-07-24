@@ -75,6 +75,22 @@ void Reporter::issueReport(Report report)
 //
 // -----------------------------------------
 
+void Reporter::issueInternalError(std::string what)
+{
+    std::cerr << termcolor::red   << "[INTERNAL ERROR]"
+              << termcolor::reset << ":"
+              << termcolor::magenta  << reporting_object
+              << termcolor::reset << " | "
+              << what << std::endl;
+
+    std::cerr << termcolor::cyan << "Exiting" << termcolor::reset << std::endl;
+    exit(EXIT_FAILURE);
+}
+
+// -----------------------------------------
+//
+// -----------------------------------------
+
 void Reporter::displayIndicatorArrowLine(Level level, std::size_t arrow_pos, unsigned trail_length)
 {
     std::string line;
