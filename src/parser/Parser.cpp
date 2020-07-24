@@ -106,26 +106,34 @@ namespace TAU
 
                 case State::FUNCTION_PARAMS:
                 {
+                    if(strm[sidx].type == Token::Type::R_PAREN)
+                    {
+                        std::cout << "Empty params" << std::endl;
+
+                        parser_state = State::RETURN_VALUE;
+                        ++sidx;
+                        break;
+                    }
 
                     if(sidx + 3 > strm.size()) { reporter.issueInternalError("Not enough toks"); }
 
                     if(! (strm[sidx].type   != Token::Type::IDENTIFIER) ){ reporter.issueInternalError("Expected identifier. -> give real report here"); }
                     if(! (strm[sidx+1].type != Token::Type::COLON))      { reporter.issueInternalError("Expected colon. "); }
                     if(! (strm[sidx+2].type != Token::Type::CHAR
-                       && strm[sidx+2].type != Token::Type::DOUBLE
-                       && strm[sidx+2].type != Token::Type::INT))        { reporter.issueInternalError("Unknown data type given for param"); }
+                       || strm[sidx+2].type != Token::Type::DOUBLE
+                       || strm[sidx+2].type != Token::Type::INT))        { reporter.issueInternalError("Unknown data type given for param"); }
 
                     if(strm[sidx+3].type == Token::Type::COMMA)
                     {
                         // We expect more from this
                     }
-                    else if(strm[sidx+3].type == Token::Type::L_PAREN)
+                    else if(strm[sidx+3].type == Token::Type::R_PAREN)
                     {
                         parser_state = State::RETURN_VALUE;
                     }
                     else
                     {
-                        reporter.issueInternalError("Unexpected token");
+                        reporter.issueInternalError("Unexpected token << ");
                     }
 
                     sidx += 3;
@@ -142,12 +150,15 @@ namespace TAU
                     }
                     else
                     {
-                        if(sidx + 2 < strm.size()) { reporter.issueInternalError("Not enough toks"); }
+                        if(sidx + 2 > strm.size()) { reporter.issueInternalError("Not enough toks"); }
 
                         if(! (strm[sidx].type   == Token::Type::ARROW)) { reporter.issueInternalError("Expected arrow.. didn't get an arrow. We need an arrow"); }
                         if(! (strm[sidx+1].type != Token::Type::CHAR
-                           && strm[sidx+1].type != Token::Type::DOUBLE
-                           && strm[sidx+1].type != Token::Type::INT))   { reporter.issueInternalError("Unknown data type given for return type"); }
+                           || strm[sidx+1].type != Token::Type::DOUBLE
+                           || strm[sidx+1].type != Token::Type::INT))   
+                        {
+                               reporter.issueInternalError("Unknown data type given for return type"); 
+                        }
 
                         if(! (strm[sidx+2].type != Token::Type::L_BRACKET)) { reporter.issueInternalError("Expected { but we didn't get one"); }
 
@@ -161,6 +172,22 @@ namespace TAU
 
                 case State::FUNCTION_BLOCK:
                 {
+                    if(strm[sidx].type == Token::Type::R_BRACE)
+                    {
+                        // No function data
+                        parser_state = State::START;
+                        ++sidx;
+                    }
+
+                    /*
+                
+                        Right now things will hang here because we aren't incing the sidx
+                        We need to recurse on the tstream delimited by ';' to figure out
+                        what it is we are looking at to build a representation of the statement
+                
+                    */
+
+
                     break;
                 }
 
