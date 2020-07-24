@@ -54,6 +54,7 @@ protected:
 private:
     std::string reporting_object;
 
+    void displayIndicator(Report const & report);
     void displayIndicatorArrowLine(Level level, std::size_t arrow_pos, unsigned trail_length=5);
     void displayIndicatorArrow(Level level, std::size_t arrow_pos);
     void displayIndicatorLine(Level level, std::size_t start_pos, std::size_t end_pos);

@@ -51,6 +51,7 @@ void Reporter::issueReport(Report report)
 
     //  Draw the indicator object if there is one selected
     //
+    displayIndicator(report);
     switch(report.indicator)
     {
         case Indicator::ARROW_LINE: displayIndicatorArrowLine(report.level, report.col); break;
@@ -74,6 +75,30 @@ void Reporter::issueReport(Report report)
 // -----------------------------------------
 //
 // -----------------------------------------
+void Reporter::displayIndicator(Report const &report)
+{
+    auto color = (report.level == Level::WARNING ? termcolor::yellow : termcolor::red);
+    char tag   = ' ';
+    char line  = ' ';
+    switch(report.indicator)
+    {
+    case Indicator::ARROW_LINE:  tag = '^', line = '~'; break;
+    case Indicator::ARROW     :  tag = '^';             break;
+    case Indicator::LINE      :  tag = '~'; line = '~'; break;
+    case Indicator::NONE :
+    default:
+        return;
+    }
+
+    std::string indicator(report.source_line.size(), ' ');
+    indicator[report.col] = tag;
+    for(std::size_t st = report.col+1; st < report.source_line.size(); ++st)
+    {
+        indicator[st] = line;
+    }
+
+    std::cout << color << indicator << termcolor::reset << std::endl;
+}
 
 void Reporter::displayIndicatorArrowLine(Level level, std::size_t arrow_pos, unsigned trail_length)
 {
