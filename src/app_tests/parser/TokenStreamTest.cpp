@@ -172,9 +172,7 @@ TEST(TokenStreamTests, IndividualTokens)
             std::vector<std::string> source; 
             source.push_back(item.value);
 
-            TAU::Reporter * reporter = new TAU::Reporter("TEST::TAU::TokenStream");
-
-            TAU::TokenStream ts(*reporter); 
+            TAU::TokenStream ts; 
             ts.createStreamFromVector("IndividualTokenTest", source);
 
             std::vector<TAU::Token> t_stream = ts.getStream();
@@ -188,8 +186,6 @@ TEST(TokenStreamTests, IndividualTokens)
             //std::cout << item.toString() << " | " << t_stream[0].toString() << std::endl;
 
             CHECK_TRUE_TEXT(item.type == t_stream[0].type, "Types did not match");
-
-            delete reporter;
         }
     }
 }

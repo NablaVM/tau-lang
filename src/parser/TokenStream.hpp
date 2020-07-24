@@ -16,8 +16,7 @@ class TokenStream
 {
 public:
     //! \brief Create a token stream
-    //! \param reporter The object that will be used to report issues
-    TokenStream(Reporter & reporter);
+    TokenStream();
 
     //! \brief Tokenize a source file
     void createStreamFromFile(std::string file);
@@ -34,7 +33,7 @@ public:
     std::vector<Token> getStream() const;
 
 private:
-    Reporter                          &reporter;
+    Reporter                           reporter;
     std::string                        origin_source_name;
     std::vector<Token>                 stream;
     std::map<std::string, Token::Type> keywords;

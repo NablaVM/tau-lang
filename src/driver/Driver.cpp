@@ -14,9 +14,7 @@ namespace TAU
 
     Driver::Driver() 
     {
-        stream_reporter = new Reporter("TAU::TokenStream");
-        parser_reporter = new Reporter("TAU::Parser");
-        parser = new Parser(*parser_reporter, *this);
+
     }
 
     // -----------------------------------------
@@ -25,16 +23,14 @@ namespace TAU
 
     Driver::~Driver() 
     {
-        delete parser;
-        delete parser_reporter;
-        delete stream_reporter;
+
     }
 
     // -----------------------------------------
     //
     // -----------------------------------------
     
-    void Driver::start(std::vector<std::string> compilation_files)
+    void Driver::loadFiles(Parser & parser, std::vector<std::string> compilation_files)
     {
         //  For every file given
         //
@@ -67,7 +63,7 @@ namespace TAU
 
             //  Create a token stream for the file
             //
-            TokenStream * token_stream = new TokenStream(*stream_reporter);
+            TokenStream * token_stream = new TokenStream();
 
             //  Populate the stream from file
             //
@@ -75,12 +71,8 @@ namespace TAU
 
             // Hand the token stream to the parser - it will handle clean up
             //
-            parser->addTokenStream(token_stream);
+            parser.addTokenStream(token_stream);
         }
-
-        //  The parser now has all of the initial streams, start parsing
-        //
-        parser->begin();
     }
 
     // -----------------------------------------

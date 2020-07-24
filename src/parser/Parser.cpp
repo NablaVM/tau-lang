@@ -11,15 +11,11 @@ namespace TAU
     //
     // -----------------------------------------
     
-    Parser::Parser(Reporter & reporter, Driver & driver) : 
-        driver(driver), reporter(reporter)
+    Parser::Parser() : reporter("TAU::Parser")
     {
-        /*
-            The driver is given to the parser so if we run out of token streams and have
-            unresolved items we can request that the driver search for it and generate a
-            token stream for us
-        */
+
     }
+
     // -----------------------------------------
     //
     // -----------------------------------------
@@ -49,7 +45,7 @@ namespace TAU
     //
     // -----------------------------------------
     
-    void Parser::begin()
+    void Parser::parse()
     {
         std::cout << "Parser <todo> : Begin parsing token streams" << std::endl;
 

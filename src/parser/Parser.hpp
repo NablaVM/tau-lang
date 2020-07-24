@@ -15,11 +15,7 @@ namespace TAU
     public:
 
         //! \brief Construct the parser with a reference to the driver
-        //! \param reporter The object that will be used to report issues
-        //! \param driver The compilation driver, given to the parser
-        //!        so it can request a search for more token streams
-        //!        in the event there are unresolved symbols
-        Parser(Reporter & reporter, Driver & driver);
+        Parser();
 
         //! \brief Destruct the parser
         ~Parser();
@@ -28,12 +24,11 @@ namespace TAU
         //! \param stream The token stream to parse 
         void addTokenStream(TokenStream * stream);
 
-        //! \brief Begin parsing 
-        void begin();
+        //! \brief Parse token streams
+        void parse();
 
     private:
-        Reporter & reporter;
-        Driver & driver;
+        Reporter reporter;
 
         std::vector<TokenStream *> streams;
 

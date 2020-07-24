@@ -12,7 +12,7 @@ namespace TAU
 //
 // -----------------------------------------
 
-TokenStream::TokenStream(Reporter &reporter) : reporter(reporter)
+TokenStream::TokenStream() : reporter("TAU::TokenStream")
 {
     keywords["func"] = Token::Type::FUNC;
     keywords["asm"]  = Token::Type::ASM;
