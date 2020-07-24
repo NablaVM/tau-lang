@@ -1,6 +1,8 @@
 #ifndef TAU_DRIVER_HPP
 #define TAU_DRIVER_HPP
 
+#include "Reporter.hpp"
+#include "TokenStream.hpp"
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -33,6 +35,8 @@ namespace TAU
 
     private:
 
+        Reporter * stream_reporter;
+        Reporter * parser_reporter;
         Parser * parser;
 
         std::vector< std::filesystem::path > project_directories;

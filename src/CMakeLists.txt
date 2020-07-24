@@ -28,6 +28,16 @@ set(DRIVER_SOURCES
     ${DRIVER_DIR}/Driver.cpp
 )
 
+#   Reporter
+#
+set(REPORTER_DIR
+    ${CMAKE_SOURCE_DIR}/reporter
+)
+
+set(REPORTER_SOURCES
+    ${REPORTER_DIR}/Reporter.cpp
+)
+
 #   Parser
 #
 set(PARSER_DIR
@@ -39,13 +49,20 @@ set(PARSER_SOURCES
     ${PARSER_DIR}/TokenStream.cpp
 )
 
-add_library(tau-parser ${PARSER_SOURCES})
+#   Lib
+#   
+add_library(tau-lib 
+    ${DRIVER_SOURCES}
+    ${REPORTER_SOURCES}
+    ${PARSER_SOURCES}
+)
 
 #
 #   Include directories
 #
 include_directories(${CMAKE_SOURCE_DIR}/driver)
 include_directories(${CMAKE_SOURCE_DIR}/parser)
+include_directories(${CMAKE_SOURCE_DIR}/reporter)
 
 #
 #   Tests
@@ -59,13 +76,12 @@ endif()
 #   Applications
 #
 add_executable(tau
-        ${DRIVER_SOURCES}
         main.cpp
 )
 
 target_link_libraries(tau
     PRIVATE
-        tau-parser
+        tau-lib
         ${LIBNABLA_LIBRARIES}
 )
 
