@@ -48,6 +48,10 @@ namespace TAU
         std::vector<TokenStream *> streams;
 
         void parseStream(TokenStream * stream);
+
+        std::vector<Token> getNextStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete);
+
+        void acceptStatements(std::vector<Token> & strm, std::size_t & idx, bool & complete);
     };
 }
 

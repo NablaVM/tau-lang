@@ -79,6 +79,7 @@ namespace TAU
                     if(strm[sidx].type == Token::Type::FUNC){ parser_state = State::FUNCTION_DECLS; }
                     else 
                     {
+                        std::cout << "---> Token type: " << strm[sidx].toString(true) << std::endl;
                         reporter.issueInternalError("Unexpected token in start state. Expected func");
                     }
                     ++sidx;
@@ -112,7 +113,7 @@ namespace TAU
 
                         parser_state = State::RETURN_VALUE;
                         ++sidx;
-                        break;
+                        continue;
                     }
 
                     if(sidx + 3 > strm.size()) { reporter.issueInternalError("Not enough toks"); }
@@ -125,6 +126,7 @@ namespace TAU
 
                     if(strm[sidx+3].type == Token::Type::COMMA)
                     {
+                        sidx++;
                         // We expect more from this
                     }
                     else if(strm[sidx+3].type == Token::Type::R_PAREN)
@@ -165,7 +167,7 @@ namespace TAU
                         //  Go to the next state!
                         //
                         parser_state = State::FUNCTION_BLOCK;
-                        sidx+=2;
+                        sidx+=3;
                     }
                     break;
                 }
@@ -175,19 +177,18 @@ namespace TAU
                     if(strm[sidx].type == Token::Type::R_BRACE)
                     {
                         // No function data
-                        parser_state = State::START;
                         ++sidx;
+                        parser_state = State::START;
+                        break;
                     }
 
-                    /*
-                
-                        Right now things will hang here because we aren't incing the sidx
-                        We need to recurse on the tstream delimited by ';' to figure out
-                        what it is we are looking at to build a representation of the statement
-                
-                    */
+                    // Accept statements until '}' is reached 
+                    //
+                    bool completed = false;
+                    acceptStatements(strm, sidx, completed);
 
 
+                    parser_state = State::START;
                     break;
                 }
 
@@ -197,5 +198,112 @@ namespace TAU
             }
 
         }
+    }
+
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+    
+    std::vector<Token> Parser::getNextStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete)
+    {
+        /*
+            This needs to handle special cases!!!
+
+            This works \  x : int := 43; 
+
+            This wont | 
+
+                if(condition){
+
+                    blah;
+                    blah;
+                    blah;
+
+                } 
+
+            If we hit the } on the if statement we will trigger a function end which is wrong
+
+            If we hit 'blah;' the statement [   if(condition){blah; ] woule be returned. 
+
+            We need to handle things like lookinf for (if) and call a different function to pull 
+            the if from the stream. 
+
+            Same thing would happen with any other block thing. But this works great for assignments and reassignments
+            and we could totally call an if grabber then in that func call this func to build its statements. 
+
+            Wild
+        
+        */
+
+
+        //  Check for completion condition
+        //
+        if(strm[idx].type == Token::Type::R_BRACE)
+        { 
+            ++idx;              // Step idx so we don't do anything with the }
+            complete = true;    // Indicate that everything is done
+            return {};          // Return out of the function
+        }
+
+        //  Statement to hand back
+        //
+        std::vector<Token> statement;
+
+        //  Iterate stream from current idx until ';' or end of stream
+        //
+        for(; idx < strm.size(); idx++)
+        {
+            //  If we reach the end of the stream without hitting a ';' we fail
+            //
+            if(idx == strm.size()-1){ reporter.issueInternalError("Unterminated statement"); }
+
+            //  If we find a ';' we want to return the statement, otherewise we need to 
+            //  add that token to the return statement
+            //
+            if(strm[idx].type == Token::Type::SEMI)
+            {
+                idx++; // Skip the semi
+                return statement;
+            }
+            else
+            {
+                statement.push_back(strm[idx]);
+            }
+        }
+
+        // Keep the compiler happy
+        //
+        return {};
+    }
+
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+    
+    void Parser::acceptStatements(std::vector<Token> & strm, std::size_t & idx, bool & complete)
+    {
+        std::cout << "acceptStatements: idx : " << idx << std::endl;
+        std::vector<Token> stmt = getNextStatement(strm, idx, complete);
+
+        if(complete){ return; }
+
+        //  Need to determine statement type. We COULD hash the tokens ? nah..
+        //  Idk, need to determine type of statement to build
+        //
+
+
+        std::cout << "Got a statement of size : " << stmt.size() << std::endl;
+
+        for(auto t : stmt)
+        {
+            std::cout << t.toString() << " ";
+        }
+        std::cout << std::endl;
+
+        //reporter.issueInternalError("Just here for a test");
+
+        //  Here we recurse on the acceptStatements method until the function is completed
+        //
+        acceptStatements(strm, idx, complete);
     }
 }
