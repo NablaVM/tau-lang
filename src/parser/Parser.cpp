@@ -62,6 +62,17 @@ namespace TAU
     // -----------------------------------------
     //
     // -----------------------------------------
+
+    bool Parser::tokenIsDataType(Token token)
+    {
+        return( token.type == Token::Type::CHAR   || 
+                token.type == Token::Type::DOUBLE ||
+                token.type == Token::Type::INT);
+    }
+
+    // -----------------------------------------
+    //
+    // -----------------------------------------
     
     void Parser::parseStream(TokenStream * stream)
     {
@@ -90,7 +101,7 @@ namespace TAU
                 {
                     if(strm.size() < 2){ reporter.issueInternalError("Not enough toks"); }
 
-                    if(! (strm[sidx].type == Token::Type::IDENTIFIER)) { reporter.issueInternalError("Expected identifier -> Issue report"); }
+                    if(! (strm[sidx].type == Token::Type::IDENTIFIER)) { reporter.issueInternalError("Expected identifier (function decl) -> Issue report"); }
                     if(! (strm[sidx+1].type == Token::Type::L_PAREN))    { reporter.issueInternalError("Expected ) -> Issue report");          }
 
                     // Here we could instantiate a function representation that the rest of the state would build.
@@ -109,41 +120,63 @@ namespace TAU
                 {
                     if(strm[sidx].type == Token::Type::R_PAREN)
                     {
-                        std::cout << "Empty params" << std::endl;
+                        if(strm[sidx-1].type == Token::Type::COMMA)
+                        {
+                            std::cout << "Expected parameter preceeding comma, got ')' instead" << std::endl;
+                            reporter.issueInternalError("Invalid syntax -> report it");
+                        }
 
                         parser_state = State::RETURN_VALUE;
                         ++sidx;
                         continue;
                     }
 
-                    if(sidx + 3 > strm.size()) { reporter.issueInternalError("Not enough toks"); }
+                    if(sidx + 4 > strm.size()) { reporter.issueInternalError("Not enough toks"); }
 
-                    if(! (strm[sidx].type   != Token::Type::IDENTIFIER) ){ reporter.issueInternalError("Expected identifier. -> give real report here"); }
-                    if(! (strm[sidx+1].type != Token::Type::COLON))      { reporter.issueInternalError("Expected colon. "); }
-                    if(! (strm[sidx+2].type != Token::Type::CHAR
-                       || strm[sidx+2].type != Token::Type::DOUBLE
-                       || strm[sidx+2].type != Token::Type::INT))        { reporter.issueInternalError("Unknown data type given for param"); }
+                    if(strm[sidx].type != Token::Type::IDENTIFIER)
+                    {
+                        std::cout << "Expected identifier while parsing parameter types" << std::endl;
+                        std::cout << "Got : " << strm[sidx].toString(true) << " instead" << std::endl;
+                        reporter.issueInternalError("Expected id in params");
+                    }
 
+                    if(strm[sidx+1].type != Token::Type::COLON)
+                    {
+                        reporter.issueInternalError("Expected colon while parsing func params");
+                    }
+
+                    if(! tokenIsDataType(strm[sidx+2]) )
+                    {
+                        reporter.issueInternalError("Expected data type while parsing param");
+                    }
+
+                    //  If the next thing is a comma we need to get the next chunk of params
+                    //
                     if(strm[sidx+3].type == Token::Type::COMMA)
                     {
-                        sidx++;
-                        // We expect more from this
+                        sidx+=4;
+                        continue;
                     }
                     else if(strm[sidx+3].type == Token::Type::R_PAREN)
                     {
+                        sidx+=4;
                         parser_state = State::RETURN_VALUE;
-                    }
-                    else
-                    {
-                        reporter.issueInternalError("Unexpected token << ");
+                        continue;
                     }
 
-                    sidx += 3;
                     break;
                 }
 
                 case State::RETURN_VALUE:
                 {
+/*
+
+                        This needs to be updated to use tokenIsDataType() and it needs to get multiple
+                        return types. Right now it only handles one
+
+*/
+
+
                     if(strm[sidx].type == Token::Type::L_BRACE)
                     {
                         // No return type
@@ -275,7 +308,37 @@ namespace TAU
         //
         return {};
     }
+    
+    // -----------------------------------------
+    //
+    // -----------------------------------------
 
+    std::vector<Token> Parser::getIfStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete)
+    {
+        reporter.issueInternalError("If Parsing not yet complete");
+        return {};
+    }
+    
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+
+    std::vector<Token> Parser::getWhileStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete)
+    {
+        reporter.issueInternalError("While Parsing not yet complete");
+        return {};
+    }
+    
+    // -----------------------------------------
+    //
+    // -----------------------------------------
+
+    std::vector<Token> Parser::getForLoopStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete)
+    {
+        reporter.issueInternalError("ForLoop Parsing not yet complete");
+        return {};
+    }
+    
     // -----------------------------------------
     //
     // -----------------------------------------
