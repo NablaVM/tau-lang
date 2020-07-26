@@ -1,0 +1,61 @@
+func (Something) something(params) -> return
+{
+    statements;
+}
+
+struct
+{
+    var a : int;
+}
+
+if(expression)
+{
+    statements;
+}
+
+while(expression)
+{
+    statements;
+}
+
+for(init; expression; post)
+{
+    statements;
+}
+
+func something()
+{
+    if(a < b)
+    {
+        c = a;
+    }
+}
+
+FUNC IDENT L_PAREN R_PAREN 
+L_BRACE
+    IF L_PAREN(IDENTIFIER LT IDENTIFIER)
+    L_BRACE
+        IDENTIFIER EQ IDENTIFIER SEMI
+    R_BRACE
+R_BRACE
+
+
+FUNC/IF/WHILE/FOR <STUFF> BLOCK
+
+BLOCK = L_BRACE <STUFF> R_BRACE;
+
+class Function
+{
+public:
+    struct Block 
+    {
+        std::size_t start;
+        std::size_t end;
+    };
+
+private:
+    Owner         owner;
+    std::string   identifier;
+    ParameterList params;
+    ReturnType    ret;
+    Block         block; // All the shit inside the function.

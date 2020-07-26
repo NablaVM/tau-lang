@@ -51,15 +51,7 @@ namespace TAU
         
         void parseStream(TokenStream * stream);
 
-        std::vector<Token> getNextStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete);
-
-        std::vector<Token> getIfStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete);
-        std::vector<Token> getWhileStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete);
-        std::vector<Token> getForLoopStatement(std::vector<Token> & strm, std::size_t & idx, bool & complete);
-
-        void acceptStatements(std::vector<Token> & strm, std::size_t & idx, bool & complete);
-
-
+        //IfRep *buildIfStatement(TokenStream *stream, std::size_t start, std::size_t end);
     };
 }
 
