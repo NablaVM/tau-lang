@@ -10,6 +10,8 @@
 
 namespace
 {
+    TAU::TokenStream dummy;
+
     std::string getRandomIntLiteral()
     {
         return std::to_string(
@@ -98,51 +100,51 @@ namespace
     std::vector<TAU::Token> getTauTokens()
     {
         return {
-                { TAU::Token::Type::FUNC,       1, 1, "func "},     // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::ASM,        1, 1, "asm "},      // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::RETURN,     1, 1, "return "},   // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::INT,        1, 1, "int "},      // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::DOUBLE,     1, 1, "double "},   // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::CHAR,       1, 1, "char "},     // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::INT_L,      1, 1, getRandomIntLiteral()},    
-                { TAU::Token::Type::DOUBLE_L,   1, 1, getRandomDoubleLiteral()},       
-                { TAU::Token::Type::CHAR_L,     1, 1, getRandomCharLiteral()},  
-                { TAU::Token::Type::IDENTIFIER, 1, 1, getRandomIdentifier()},     
-                { TAU::Token::Type::STRING_L,   1, 1, getRandomStringLiteral()},
-                { TAU::Token::Type::SEMI,       1, 1, ";"},    
-                { TAU::Token::Type::COMMA,      1, 1, ","},       
-                { TAU::Token::Type::COLON,      1, 1, ":"},
-                { TAU::Token::Type::PLUS,       1, 1, "+"},    
-                { TAU::Token::Type::MINUS,      1, 1, "-"},       
-                { TAU::Token::Type::SLASH,      1, 1, "/"},
-                { TAU::Token::Type::AMP,        1, 1, "&"},    
-                { TAU::Token::Type::D_AMP,      1, 1, "&&"},       
-                { TAU::Token::Type::PIPE,       1, 1, "|"},
-                { TAU::Token::Type::HAT,        1, 1, "^"},    
-                { TAU::Token::Type::SHL,        1, 1, "<<"},       
-                { TAU::Token::Type::SHR,        1, 1, ">>"},
-                { TAU::Token::Type::LT,         1, 1, "<"},    
-                { TAU::Token::Type::LTE,        1, 1, "<="},       
-                { TAU::Token::Type::GT,         1, 1, ">"},
-                { TAU::Token::Type::EQ,         1, 1, "="},    
-                { TAU::Token::Type::BANG_EQ,    1, 1, "!="},       
-                { TAU::Token::Type::BANG,       1, 1, "!"},
-                { TAU::Token::Type::D_STAR,     1, 1, "**"},    
-                { TAU::Token::Type::PCT,        1, 1, "%"},       
-                { TAU::Token::Type::DOT,        1, 1, "."},
-                { TAU::Token::Type::L_PAREN,    1, 1, "("},    
-                { TAU::Token::Type::R_PAREN,    1, 1, ")"},       
-                { TAU::Token::Type::STAR,       1, 1, "*"},
-                { TAU::Token::Type::L_BRACE,    1, 1, "{"},    
-                { TAU::Token::Type::R_BRACE,    1, 1, "}"},       
-                { TAU::Token::Type::D_PIPE,     1, 1, "||"},
-                { TAU::Token::Type::L_BRACKET,  1, 1, "["},    
-                { TAU::Token::Type::R_BRACKET,  1, 1, "]"},       
-                { TAU::Token::Type::TILDE,      1, 1, "~"},
-                { TAU::Token::Type::ARROW,      1, 1, "->"},    
-                { TAU::Token::Type::STRUCT,     1, 1, "struct "},       // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
-                { TAU::Token::Type::GTE,        1, 1, ">="},
-                { TAU::Token::Type::ASSIGN,     1, 1, ":="}
+                { TAU::Token::Type::FUNC,       dummy, 1, 1, "func "},     // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::ASM,        dummy, 1, 1, "asm "},      // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::RETURN,     dummy, 1, 1, "return "},   // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::INT,        dummy, 1, 1, "int "},      // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::DOUBLE,     dummy, 1, 1, "double "},   // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::CHAR,       dummy, 1, 1, "char "},     // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::INT_L,      dummy, 1, 1, getRandomIntLiteral()},    
+                { TAU::Token::Type::DOUBLE_L,   dummy, 1, 1, getRandomDoubleLiteral()},       
+                { TAU::Token::Type::CHAR_L,     dummy, 1, 1, getRandomCharLiteral()},  
+                { TAU::Token::Type::IDENTIFIER, dummy, 1, 1, getRandomIdentifier()},     
+                { TAU::Token::Type::STRING_L,   dummy, 1, 1, getRandomStringLiteral()},
+                { TAU::Token::Type::SEMI,       dummy, 1, 1, ";"},    
+                { TAU::Token::Type::COMMA,      dummy, 1, 1, ","},       
+                { TAU::Token::Type::COLON,      dummy, 1, 1, ":"},
+                { TAU::Token::Type::PLUS,       dummy, 1, 1, "+"},    
+                { TAU::Token::Type::MINUS,      dummy, 1, 1, "-"},       
+                { TAU::Token::Type::SLASH,      dummy, 1, 1, "/"},
+                { TAU::Token::Type::AMP,        dummy, 1, 1, "&"},    
+                { TAU::Token::Type::D_AMP,      dummy, 1, 1, "&&"},       
+                { TAU::Token::Type::PIPE,       dummy, 1, 1, "|"},
+                { TAU::Token::Type::HAT,        dummy, 1, 1, "^"},    
+                { TAU::Token::Type::SHL,        dummy, 1, 1, "<<"},       
+                { TAU::Token::Type::SHR,        dummy, 1, 1, ">>"},
+                { TAU::Token::Type::LT,         dummy, 1, 1, "<"},    
+                { TAU::Token::Type::LTE,        dummy, 1, 1, "<="},       
+                { TAU::Token::Type::GT,         dummy, 1, 1, ">"},
+                { TAU::Token::Type::EQ,         dummy, 1, 1, "="},    
+                { TAU::Token::Type::BANG_EQ,    dummy, 1, 1, "!="},       
+                { TAU::Token::Type::BANG,       dummy, 1, 1, "!"},
+                { TAU::Token::Type::D_STAR,     dummy, 1, 1, "**"},    
+                { TAU::Token::Type::PCT,        dummy, 1, 1, "%"},       
+                { TAU::Token::Type::DOT,        dummy, 1, 1, "."},
+                { TAU::Token::Type::L_PAREN,    dummy, 1, 1, "("},    
+                { TAU::Token::Type::R_PAREN,    dummy, 1, 1, ")"},       
+                { TAU::Token::Type::STAR,       dummy, 1, 1, "*"},
+                { TAU::Token::Type::L_BRACE,    dummy, 1, 1, "{"},    
+                { TAU::Token::Type::R_BRACE,    dummy, 1, 1, "}"},       
+                { TAU::Token::Type::D_PIPE,     dummy, 1, 1, "||"},
+                { TAU::Token::Type::L_BRACKET,  dummy, 1, 1, "["},    
+                { TAU::Token::Type::R_BRACKET,  dummy, 1, 1, "]"},       
+                { TAU::Token::Type::TILDE,      dummy, 1, 1, "~"},
+                { TAU::Token::Type::ARROW,      dummy, 1, 1, "->"},    
+                { TAU::Token::Type::STRUCT,     dummy, 1, 1, "struct "},       // Add space at end so it isn't mistaken as identifier, and doesn't polute with more tokens
+                { TAU::Token::Type::GTE,        dummy, 1, 1, ">="},
+                { TAU::Token::Type::ASSIGN,     dummy, 1, 1, ":="}
         };
     }
 }

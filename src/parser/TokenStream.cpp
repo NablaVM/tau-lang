@@ -258,8 +258,12 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         try
                         {
                             Token::Type type = keywords.at(token_string);
-                            Token tok (type, col - token_string.size(), row, token_string );
-                            stream.push_back(tok);
+                            Token tk (type, 
+                                      *this, 
+                                      row, 
+                                      col - token_string.size(), 
+                                      token_string);
+                            stream.push_back(tk);
                         }
                         catch(std::out_of_range &e)
                         {
@@ -302,7 +306,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                                 type = Token::Type::DOUBLE_L;
                             }
 
-                            Token tk ( type, col, row, match[0].str() );
+                            Token tk ( type, *this, row, col, match[0].str() );
                             stream.push_back(tk);
 
                             col += match[0].length();
@@ -315,7 +319,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         // If regex matches, then we have a valid character literal.
                         if(std::regex_search(linesub, match, lit_char_reg))
                         {
-                            Token tk = { Token::Type::CHAR_L, col, row, match[0].str() };
+                            Token tk = { Token::Type::CHAR_L, *this, row, col, match[0].str() };
                             stream.push_back(tk);
                             col += match[0].length();
                         }
@@ -340,7 +344,7 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                         // If regex matches, then we have a valid string literal.
                         if(std::regex_search(linesub, match, lit_str_reg))
                         {
-                            Token tk (Token::Type::STRING_L, col, row, match[0].str() );
+                            Token tk (Token::Type::STRING_L, *this, row, col, match[0].str() );
                             stream.push_back(tk);
                             col += match[0].length();
                         }
@@ -394,7 +398,11 @@ void TokenStream::tokenize(std::vector<std::string> & file_contents)
                             // upon here.
                         }
 
-                        Token tk (type, col-token_string.size(), row, match[0].str() );
+                        Token tk (type, 
+                                  *this, 
+                                  row, 
+                                  col - token_string.size(), 
+                                  match[0].str());
                         stream.push_back(tk);
                     }
                     else
